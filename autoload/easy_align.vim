@@ -89,9 +89,23 @@ function! s:floor2(v)
   return a:v % 2 == 0 ? a:v : a:v - 1
 endfunction
 
+function! s:get_highlight_group_name(line, col)
+  let l:hl = synIDattr(synID(a:line, a:col, 0), 'name')
+
+  " and, finally
+  return l:hl
+endfunction
+
+function! easy_align#get_highlight_group_name(line = line('.'), col = col('.'))
+  let l:line = a:line == '' ? line('.') : a:line
+  let l:col  = a:col == ''  ? col('.')  : a:col
+  let l:hl   = s:get_highlight_group_name(l:line, l:col)
+  return { 'Line': l:line, 'Column': l:col, 'HL Group': l:hl }
+endfunction
+
 function! s:highlighted_as(line, col, groups)
   if empty(a:groups) | return 0 | endif
-  let hl = synIDattr(synID(a:line, a:col, 0), 'name')
+  let hl = s:get_highlight_group_name(a:line, a:col)
   for grp in a:groups
     if grp[0] == '!'
       if hl !~# grp[1:-1]
