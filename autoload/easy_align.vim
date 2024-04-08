@@ -92,6 +92,16 @@ endfunction
 function! s:get_highlight_group_name(line, col)
   let l:hl = synIDattr(synID(a:line, a:col, 0), 'name')
 
+  if l:hl == '' && has('nvim')
+    " try getting the highlighting group using neovim treestiiter approach.
+	" The required functionality appeared in neovim nightly around 18 Dec, 2022
+	" https://www.reddit.com/r/neovim/comments/zou5ig/inspect_is_now_available_on_nightly/
+	let insp = luaeval( 'vim.inspect_pos and vim.inspect_pos( nil, ' .. (a:line-1) .. ', ' .. (a:col-1) .. ' ) or { treesitter = {} }' )
+    if ! empty( insp.treesitter )
+      let l:hl = insp.treesitter[0].hl_group_link
+    endif
+  endif
+
   " and, finally
   return l:hl
 endfunction
